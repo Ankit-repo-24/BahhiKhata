@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
+const supabase = require('../config/db');
 
-module.exports = function(req, res, next) {
+module.exports = async function(req, res, next) {
   // Get token from header
   const token = req.header('Authorization');
 
@@ -10,12 +10,21 @@ module.exports = function(req, res, next) {
   }
 
   try {
-    // Verify token (remove 'Bearer ' prefix if present)
+    // Verify token with Supabase
     const actualToken = token.startsWith('Bearer ') ? token.slice(7) : token;
-    const decoded = jwt.verify(actualToken, process.env.JWT_SECRET);
+    
+    // Set the auth token for Supabase client
+    supabase.auth.setAuth(actualToken);
+    
+    // Get user
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error || !user) {
+      return res.status(401).json({ message: 'Token is not valid' });
+    }
     
     // Add user from payload
-    req.user = decoded;
+    req.user = { userId: user.id };
     next();
   } catch (error) {
     res.status(401).json({ message: 'Token is not valid' });

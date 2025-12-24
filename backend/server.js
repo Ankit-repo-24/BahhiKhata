@@ -1,13 +1,10 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const connectDB = require('./config/db');
+const supabase = require('./config/db');
 
 // Load environment variables
 dotenv.config();
-
-// Connect to MongoDB Atlas
-connectDB();
 
 const app = express();
 
@@ -21,7 +18,7 @@ app.use('/api/expenses', require('./routes/expenses'));
 
 // Test route
 app.get('/', (req, res) => {
-  res.send('Bahhi-Khata API is running');
+  res.send('Bahhi-Khata API is running with Supabase');
 });
 
 const PORT = process.env.PORT || 5000;

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const Expense = require('../models/Expense');
+const supabase = require('../config/db');
 
 // @route   POST /api/expenses
 // @desc    Add a new expense
@@ -9,16 +9,25 @@ router.post('/', auth, async (req, res) => {
   try {
     const { title, amount, category, description } = req.body;
 
-    const expense = new Expense({
-      user: req.user.userId,
-      title,
-      amount,
-      category,
-      description
-    });
+    const { data, error } = await supabase
+      .from('expenses')
+      .insert([
+        {
+          user_id: req.user.userId,
+          amount: amount,
+          category: category,
+          payment_method: 'Manual', // Assuming manual for now
+          description: title + (description ? ' - ' + description : ''),
+          created_at: new Date().toISOString()
+        }
+      ])
+      .select();
 
-    await expense.save();
-    res.status(201).json(expense);
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    res.status(201).json(data[0]);
 
   } catch (error) {
     console.error(error);
@@ -30,10 +39,17 @@ router.post('/', auth, async (req, res) => {
 // @desc    Get all expenses for logged-in user
 router.get('/', auth, async (req, res) => {
   try {
-    const expenses = await Expense.find({ user: req.user.userId })
-      .sort({ date: -1 });
-    
-    res.json(expenses);
+    const { data, error } = await supabase
+      .from('expenses')
+      .select('*')
+      .eq('user_id', req.user.userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    res.json(data);
 
   } catch (error) {
     console.error(error);
@@ -45,18 +61,20 @@ router.get('/', auth, async (req, res) => {
 // @desc    Delete an expense
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const expense = await Expense.findById(req.params.id);
+    const { data, error } = await supabase
+      .from('expenses')
+      .delete()
+      .eq('id', req.params.id)
+      .eq('user_id', req.user.userId);
 
-    if (!expense) {
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    if (data.length === 0) {
       return res.status(404).json({ message: 'Expense not found' });
     }
 
-    // Make sure user owns the expense
-    if (expense.user.toString() !== req.user.userId) {
-      return res.status(401).json({ message: 'Not authorized' });
-    }
-
-    await Expense.findByIdAndDelete(req.params.id);
     res.json({ message: 'Expense deleted' });
 
   } catch (error) {
