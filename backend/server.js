@@ -1,10 +1,9 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const supabase = require('./config/db');
+require('dotenv').config(); 
 
-// Load environment variables
-dotenv.config();
+const express = require('express');
+const cors = require('cors');
+
+const db = require('./config/db'); 
 
 const app = express();
 
@@ -16,13 +15,13 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/expenses', require('./routes/expenses'));
 
-// Test route
+// Health check
 app.get('/', (req, res) => {
-  res.send('Bahhi-Khata API is running with Supabase');
+  res.send('Bahhi-Khata API is running');
 });
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

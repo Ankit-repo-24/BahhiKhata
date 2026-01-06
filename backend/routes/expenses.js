@@ -1,84 +1,64 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const supabase = require('../config/db');
+const db = require('../config/db');
 
-// @route   POST /api/expenses
-// @desc    Add a new expense
+// ADD EXPENSE
 router.post('/', auth, async (req, res) => {
   try {
-    const { title, amount, category, description } = req.body;
+    const { title, amount, category, date } = req.body;
 
-    const { data, error } = await supabase
-      .from('expenses')
-      .insert([
-        {
-          user_id: req.user.userId,
-          amount: amount,
-          category: category,
-          payment_method: 'Manual', // Assuming manual for now
-          description: title + (description ? ' - ' + description : ''),
-          created_at: new Date().toISOString()
-        }
-      ])
-      .select();
+    const result = await db.query(
+      `INSERT INTO expenses (user_id, title, amount, category, date)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [req.user.userId, title, amount, category, date]
+    );
 
-    if (error) {
-      return res.status(400).json({ message: error.message });
-    }
+    res.status(201).json(result.rows[0]);
 
-    res.status(201).json(data[0]);
-
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// @route   GET /api/expenses
-// @desc    Get all expenses for logged-in user
+// GET ALL EXPENSES
 router.get('/', auth, async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('expenses')
-      .select('*')
-      .eq('user_id', req.user.userId)
-      .order('created_at', { ascending: false });
+    const result = await db.query(
+      `SELECT * FROM expenses
+       WHERE user_id = $1
+       ORDER BY date DESC`,
+      [req.user.userId]
+    );
 
-    if (error) {
-      return res.status(400).json({ message: error.message });
-    }
+    res.json(result.rows);
 
-    res.json(data);
-
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// @route   DELETE /api/expenses/:id
-// @desc    Delete an expense
+// DELETE EXPENSE
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('expenses')
-      .delete()
-      .eq('id', req.params.id)
-      .eq('user_id', req.user.userId);
+    const result = await db.query(
+      `DELETE FROM expenses
+       WHERE id = $1 AND user_id = $2
+       RETURNING id`,
+      [req.params.id, req.user.userId]
+    );
 
-    if (error) {
-      return res.status(400).json({ message: error.message });
-    }
-
-    if (data.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Expense not found' });
     }
 
     res.json({ message: 'Expense deleted' });
 
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });

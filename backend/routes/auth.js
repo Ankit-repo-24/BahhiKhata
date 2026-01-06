@@ -1,79 +1,80 @@
 const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
-const supabase = require('../config/db');
+const db = require('../config/db');
 
-// @route   POST /api/auth/register
-// @desc    Register a new user via Supabase Auth
+// REGISTER
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Use Supabase Auth to sign up
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name: name
-        }
-      }
-    });
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (error) {
-      return res.status(400).json({ message: error.message });
+    const result = await db.query(
+      `INSERT INTO users (name, email, password_hash)
+       VALUES ($1, $2, $3)
+       RETURNING id, name, email`,
+      [name, email, hashedPassword]
+    );
+
+    const user = result.rows[0];
+
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({ token, user });
+
+  } catch (err) {
+    if (err.code === '23505') {
+      return res.status(400).json({ message: 'Email already exists' });
     }
-
-    // Insert user into users table (assuming RLS allows)
-    const { data: userData, error: insertError } = await supabase
-      .from('users')
-      .insert([
-        {
-          id: data.user.id,
-          name: name,
-          email: email,
-          created_at: new Date().toISOString()
-        }
-      ]);
-
-    if (insertError) {
-      console.error('Error inserting user:', insertError);
-      // Continue anyway, as auth user is created
-    }
-
-    res.status(201).json({
-      user: data.user,
-      session: data.session
-    });
-
-  } catch (error) {
-    console.error(error);
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// @route   POST /api/auth/login
-// @desc    Login user via Supabase Auth
+// LOGIN
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Use Supabase Auth to sign in
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    const result = await db.query(
+      `SELECT * FROM users WHERE email = $1`,
+      [email]
+    );
 
-    if (error) {
-      return res.status(400).json({ message: error.message });
+    if (result.rows.length === 0) {
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    const user = result.rows[0];
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
     res.json({
-      user: data.user,
-      session: data.session
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
     });
 
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
