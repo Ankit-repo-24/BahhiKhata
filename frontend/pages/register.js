@@ -24,7 +24,17 @@ export default function Register() {
         password,
       });
 
-      router.push('/login');
+      // ✅ RESET FORM FIELDS
+      setName('');
+      setEmail('');
+      setPassword('');
+      setShowPassword(false);
+
+      // optional: small UX delay so reset is visible
+      setTimeout(() => {
+        router.push('/login');
+      }, 300);
+
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {
