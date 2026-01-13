@@ -334,67 +334,6 @@ npm run test:coverage
 - **Caching headers** for static assets
 - **Lazy loading** of non-critical modules
 
-## 🛠️ Development Scripts
-
-```json
-{
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "db:reset": "node scripts/reset-database.js",
-    "db:seed": "node scripts/seed-database.js",
-    "lint": "eslint .",
-    "format": "prettier --write .",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
-  }
-}
-```
-
-## 🎨 Repository Improvement Tactics
-
-### 1. **Documentation Enhancement**
-- [ ] Add API documentation with Swagger/OpenAPI
-- [ ] Create architecture decision records (ADRs)
-- [ ] Add database migration guide
-- [ ] Include troubleshooting section
-- [ ] Add contribution guidelines
-
-### 2. **Code Quality**
-- [ ] Add ESLint with custom rules
-- [ ] Implement Prettier for code formatting
-- [ ] Add Husky pre-commit hooks
-- [ ] Set up commit message conventions
-- [ ] Add code coverage reporting
-
-### 3. **Testing Strategy**
-- [ ] Unit tests for utility functions
-- [ ] Integration tests for API endpoints
-- [ ] Database transaction tests
-- [ ] Load testing for critical paths
-- [ ] End-to-end testing with Cypress
-
-### 4. **CI/CD Pipeline**
-- [ ] GitHub Actions for automated testing
-- [ ] Automated deployments to staging
-- [ ] Database migration automation
-- [ ] Security scanning (SAST, DAST)
-- [ ] Performance benchmarking
-
-### 5. **Monitoring & Observability**
-- [ ] Add logging with Winston/Morgan
-- [ ] Implement error tracking (Sentry)
-- [ ] Add health check endpoints
-- [ ] Set up metrics collection
-- [ ] Create monitoring dashboard
-
-### 6. **Developer Experience**
-- [ ] Add Docker configuration
-- [ ] Create development environment script
-- [ ] Add database seeding utilities
-- [ ] Implement hot reload configuration
-- [ ] Add API client generation
 
 ## 🔄 Development Workflow
 
@@ -421,34 +360,6 @@ npm run test:coverage
    - Manual verification
    - Promote to production
 
-## 🚨 Troubleshooting
-
-### Common Issues
-
-1. **Database Connection Errors**
-   ```
-   Error: Cannot find module 'express'
-   ```
-   **Solution:** Run `npm install` in the backend directory
-
-2. **Port Already in Use**
-   ```
-   Error: listen EADDRINUSE: address already in use :::5000
-   ```
-   **Solution:** Change port in `.env` or kill existing process
-
-3. **JWT Authentication Failures**
-   ```
-   Error: invalid token
-   ```
-   **Solution:** Check `JWT_SECRET` environment variable
-
-4. **CORS Errors in Development**
-   ```
-   Access-Control-Allow-Origin error
-   ```
-   **Solution:** Ensure frontend URL is in CORS configuration
-
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -472,7 +383,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email [your-email] or open an issue in the GitHub repository.
+For support, email [mrigankharsh@gmail.com] or open an issue in the GitHub repository.
 
 ## 📊 Project Status
 
