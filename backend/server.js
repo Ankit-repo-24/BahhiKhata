@@ -1,5 +1,8 @@
-require('dotenv').config(); 
-
+try {
+  require('dotenv').config();
+} catch (e) {
+  // dotenv not needed in production
+}
 const express = require('express');
 const cors = require('cors');
 
