@@ -1,4 +1,19 @@
-node_modules/
+# Next.js
 .next/
+out/
+
+# Production builds
+.next/cache/
+.next/standalone/
+
+# Dependencies
+node_modules/
+
+# Environment variables
+.env*.local
+
+# System files
+.DS_Store
+*.log.next/
 .env.local
 out/
