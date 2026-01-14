@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import api from '../utils/api';
+import Layout from '../components/Layout';
 
 export default function Expenses() {
   const router = useRouter();
@@ -42,6 +43,7 @@ export default function Expenses() {
   }
 
   return (
+    <Layout>
     <div className="max-w-2xl mx-auto p-6">
       <div className="flex justify-between mb-6">
         <h2 className="text-2xl font-bold">My Expenses</h2>
@@ -63,5 +65,6 @@ export default function Expenses() {
         </ul>
       )}
     </div>
+    </Layout>
   );
 }

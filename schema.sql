@@ -1,101 +1,177 @@
---
--- PostgreSQL database schema (Neon compatible)
---
+# 🧾 Bahhi Khata
 
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
+Bahhi Khata is a **backend-first expense tracker** built as a proof-of-work project.
+The focus of this project is **backend correctness, clean architecture, and realistic frontend UX**, not feature bloat.
 
---
--- Extension: pgcrypto
---
-CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+---
 
-COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+## 🚀 Project Overview
 
---
--- Table: expense_types
---
-CREATE TABLE public.expense_types (
-    id integer NOT NULL,
-    name character varying(50) NOT NULL,
-    description text,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
+Bahhi Khata allows users to:
+- Register and authenticate securely
+- Add, view, and delete personal expenses
+- Persist data in a cloud-hosted PostgreSQL database
+- Use a clean, responsive, and animated frontend interface
 
-CREATE SEQUENCE public.expense_types_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+The application intentionally avoids over-engineering and frameworks that hide core logic.
 
-ALTER SEQUENCE public.expense_types_id_seq OWNED BY public.expense_types.id;
+---
 
-ALTER TABLE ONLY public.expense_types
-    ALTER COLUMN id SET DEFAULT nextval('public.expense_types_id_seq'::regclass);
+## 🧱 Tech Stack
 
-ALTER TABLE ONLY public.expense_types
-    ADD CONSTRAINT expense_types_pkey PRIMARY KEY (id);
+### Frontend
+- **Next.js (Pages Router)**
+- **React**
+- **Tailwind CSS**
+- **Axios**
+- Deployed on **Vercel** (planned)
 
-ALTER TABLE ONLY public.expense_types
-    ADD CONSTRAINT expense_types_name_key UNIQUE (name);
+### Backend
+- **Node.js**
+- **Express**
+- **JWT authentication**
+- **bcrypt password hashing**
+- Hosted on **Render (free tier)**
 
---
--- Table: users
---
-CREATE TABLE public.users (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    name text NOT NULL,
-    email text NOT NULL,
-    password_hash text NOT NULL,
-    created_at timestamp without time zone DEFAULT now()
-);
+### Database
+- **PostgreSQL (Neon cloud)**
 
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+---
 
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_email_key UNIQUE (email);
+## 🔐 Authentication
 
---
--- Table: expenses
---
-CREATE TABLE public.expenses (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid,
-    title text NOT NULL,
-    amount numeric(10,2) NOT NULL CHECK (amount > 0),
-    category text NOT NULL,
-    expense_date date NOT NULL,
-    created_at timestamp without time zone DEFAULT now(),
-    expense_type_id integer NOT NULL
-);
+- Email + password authentication
+- Passwords hashed using `bcrypt`
+- Stateless JWT authentication
+- Tokens stored client-side (localStorage)
+- Protected routes via middleware
 
-ALTER TABLE ONLY public.expenses
-    ADD CONSTRAINT expenses_pkey PRIMARY KEY (id);
+No third-party auth providers are used at this stage by design.
 
-CREATE INDEX idx_expenses_type ON public.expenses (expense_type_id);
+---
 
---
--- Foreign Keys
---
-ALTER TABLE ONLY public.expenses
-    ADD CONSTRAINT expenses_user_id_fkey
-    FOREIGN KEY (user_id)
-    REFERENCES public.users(id)
-    ON DELETE CASCADE;
+## 📦 Project Phases
 
-ALTER TABLE ONLY public.expenses
-    ADD CONSTRAINT fk_expense_type
-    FOREIGN KEY (expense_type_id)
-    REFERENCES public.expense_types(id)
-    ON DELETE RESTRICT;
+### ✅ Phase 0 — Foundation
+- Express backend setup
+- PostgreSQL schema design
+- JWT authentication
+- Protected routes
+
+### ✅ Phase 1 — Database Evolution
+- Normalized schema
+- Expense types table
+- Foreign key constraints
+- SQL JOINs for enriched responses
+
+### ✅ Phase 2 — Cloud Deployment
+- Neon PostgreSQL migration
+- Backend deployment on Render
+- Environment-based configuration
+- Production-ready API
+
+### ✅ Phase 3 — Frontend Polish & UX (Current)
+
+This phase focused entirely on **frontend quality and usability**, without changing backend architecture.
+
+#### Key improvements:
+- Introduced a proper **Home / Landing page**
+- Implemented a global **Layout system** (Navbar + Footer)
+- Created reusable UI components:
+  - `<Input />`
+  - `<Button />`
+- Rebuilt **Login** and **Register** pages with:
+  - Better layout
+  - Autofill support
+  - Show/hide password
+  - Error handling
+- Added **premium CSS styling**:
+  - Soft gradients
+  - Elevation and shadows
+  - Hover and focus transitions
+  - Page entry animations
+- Fixed layout alignment issues:
+  - Consistent max-width grid
+  - Proper vertical centering
+  - Navbar / content / footer alignment
+- Maintained logic-UI separation (no logic regressions)
+
+---
+
+## 🖥️ Frontend Structure
+
+frontend/
+├── pages/
+│ ├── _app.js
+│ ├── index.js # Home page
+│ ├── login.js
+│ ├── register.js
+│ └── expenses.js
+│
+├── components/
+│ ├── Layout.js
+│ ├── Navbar.js
+│ ├── Footer.js
+│ ├── Input.js
+│ └── Button.js
+│
+├── styles/
+│ └── globals.css
+│
+└── utils/
+└── api.js
+
+yaml
+Copy code
+
+---
+
+## 🎨 Design Philosophy
+
+- Clean, minimal, fintech-style UI
+- Animations only where they add clarity
+- No unnecessary libraries
+- Accessibility-friendly inputs
+- Responsive by default
+
+The goal is **professional and calm**, not flashy.
+
+---
+
+## 📌 Current Status
+
+- Backend: ✅ Stable & deployed
+- Frontend: ✅ Polished, animated, presentable
+- Auth: ✅ Working end-to-end
+- Ready for frontend deployment on Vercel
+
+---
+
+## 🔮 Future Scope
+
+Planned improvements (not yet implemented):
+- Add expense form UI
+- Expense filtering and summaries
+- Monthly insights / analytics
+- Optional OAuth (Google, GitHub)
+- Dark mode
+- Mobile-first refinements
+
+---
+
+## 🧠 Key Takeaway
+
+Bahhi Khata is built to demonstrate:
+- Real backend engineering
+- Practical frontend UX decisions
+- Incremental, justified development phases
+- Clear separation of concerns
+
+This is not a tutorial project — it’s a **deliberate engineering exercise**.
+
+---
+
+## 👤 Author
+
+**Harsh Mrigank**  
+Backend-first engineering project

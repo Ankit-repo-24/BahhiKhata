@@ -1,22 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import Layout from '../components/Layout';
+import Input from '../components/Input';
+import Button from '../components/Button';
 import api from '../utils/api';
 
 export default function Register() {
   const router = useRouter();
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-
-  // ✅ Redirect if already logged in
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) router.replace('/expenses');
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,70 +22,87 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await api.post('/auth/register', { name, email, password });
+      await api.post('/auth/register', {
+        name,
+        email,
+        password,
+      });
 
-      setName('');
-      setEmail('');
-      setPassword('');
-      setShowPassword(false);
-
-      setTimeout(() => router.push('/login'), 300);
+      router.push('/login');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="card w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+    <Layout>
+      <div className="flex justify-center items-center py-20">
+        <div className="card w-full max-w-md">
+          <h2 className="text-2xl font-semibold text-center mb-2">
+            Create account
+          </h2>
+          <p className="text-sm text-gray-600 text-center mb-6">
+            Start tracking your expenses
+          </p>
 
-        {error && <p className="text-red-600 mb-4">{error}</p>}
+          {error && (
+            <div className="alert alert-error mb-4">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your name"
+              required
+            />
 
-          <input
-            type="email"
-            placeholder="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              autoComplete="email"
+              required
+            />
 
-          <input
-            type={showPassword ? 'text' : 'password'}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+            <Input
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Create a password"
+              autoComplete="new-password"
+              required
+            />
 
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="text-sm text-blue-600"
-          >
-            {showPassword ? 'Hide password' : 'Show password'}
-          </button>
+            <button
+              type="button"
+              className="text-xs text-blue-600"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? 'Hide password' : 'Show password'}
+            </button>
 
-          <button className="btn btn-success w-full" disabled={loading}>
-            {loading ? 'Creating…' : 'Create Account'}
-          </button>
-        </form>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Creating…' : 'Create account'}
+            </Button>
+          </form>
 
-        <p className="text-sm text-center mt-4">
-          Already have an account? <Link href="/login">Login</Link>
-        </p>
+          <p className="text-sm text-center mt-6">
+            Already have an account?{' '}
+            <Link href="/login" className="text-blue-600">
+              Login
+            </Link>
+          </p>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }

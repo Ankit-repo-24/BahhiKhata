@@ -1,88 +1,117 @@
 @import "tailwindcss";
 
-/* ================================
+/* =====================
    THEME TOKENS
-================================ */
+===================== */
 @theme {
+  --color-primary-500: #2563eb;
   --color-primary-600: #1d4ed8;
   --color-primary-700: #1e40af;
 
-  --color-success-600: #16a34a;
-  --color-error-600: #dc2626;
+  --color-bg-gradient-start: #f8fafc;
+  --color-bg-gradient-end: #eef2ff;
 
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-300: #d1d5db;
-  --color-gray-500: #6b7280;
-  --color-gray-700: #374151;
-  --color-gray-900: #111827;
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 18px 40px rgba(0, 0, 0, 0.12);
 }
 
-/* ================================
+/* =====================
    BASE
-================================ */
+===================== */
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply text-gray-900 antialiased;
+    background: linear-gradient(
+      to bottom right,
+      var(--color-bg-gradient-start),
+      var(--color-bg-gradient-end)
+    );
   }
 
   h1, h2, h3 {
-    @apply font-semibold;
+    @apply font-semibold tracking-tight;
   }
 }
 
-/* ================================
+/* =====================
    COMPONENTS
-================================ */
+===================== */
 @layer components {
 
   /* Card */
   .card {
-    @apply bg-white border border-gray-200 rounded-lg p-6 shadow-sm;
+    @apply bg-white rounded-2xl p-6 border border-gray-200;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
   }
 
   /* Input */
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md
-           focus:outline-none focus:ring-2 focus:ring-primary-600
-           focus:border-primary-600;
+    @apply w-full px-4 py-3 rounded-xl border border-gray-300
+           focus:outline-none focus:ring-2 focus:ring-primary-500
+           focus:border-primary-500 transition-all duration-200;
+    background: #fff;
   }
 
-  /* Button base */
+  /* Button */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2
-           text-sm font-medium rounded-md
-           transition disabled:opacity-50
-           disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-5 py-3 rounded-xl
+           font-medium transition-all duration-200;
   }
 
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700;
+    background: linear-gradient(
+      to right,
+      var(--color-primary-600),
+      var(--color-primary-700)
+    );
+    color: white;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
   }
 
   .btn-secondary {
-    @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
+    @apply bg-white border border-gray-300 text-gray-700;
   }
 
-  .btn-success {
-    @apply bg-success-600 text-white hover:bg-green-700;
+  .btn-secondary:hover {
+    @apply bg-gray-100;
+    transform: translateY(-1px);
   }
 
   /* Alerts */
   .alert {
-    @apply p-3 rounded-md text-sm;
+    @apply p-4 rounded-xl text-sm;
+    animation: fadeIn 0.3s ease-out;
   }
 
   .alert-error {
-    @apply bg-red-50 text-error-600 border border-red-200;
+    @apply bg-red-50 border border-red-200 text-red-700;
   }
 }
 
-/* ================================
-   LAYOUT HELPERS
-================================ */
-.container {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 1.5rem;
+/* =====================
+   ANIMATIONS
+===================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out both;
 }
