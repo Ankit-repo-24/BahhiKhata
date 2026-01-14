@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import api from '../utils/api';
@@ -11,21 +11,23 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // ✅ Redirect if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) router.replace('/expenses');
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const res = await api.post('/auth/login', {
-        email,
-        password,
-      });
-
+      const res = await api.post('/auth/login', { email, password });
       localStorage.setItem('token', res.data.token);
       router.push('/expenses');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -41,8 +43,6 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
-            name="email"
-            autoComplete="email"
             placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -51,32 +51,27 @@ export default function Login() {
 
           <input
             type={showPassword ? 'text' : 'password'}
-            name="password"
-            autoComplete="current-password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          
+
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="text-sm text-blue-600 mt-1"
+            className="text-sm text-blue-600"
           >
             {showPassword ? 'Hide password' : 'Show password'}
           </button>
 
           <button className="btn btn-primary w-full" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Logging in…' : 'Login'}
           </button>
         </form>
 
         <p className="text-sm text-center mt-4">
-          No account?{' '}
-          <Link href="/register" className="text-primary-600">
-            Register
-          </Link>
+          No account? <Link href="/register">Register</Link>
         </p>
       </div>
     </div>

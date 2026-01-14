@@ -6,11 +6,12 @@ export default function Expenses() {
   const router = useRouter();
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      router.push('/login');
+      router.replace('/login');
       return;
     }
     fetchExpenses();
@@ -20,8 +21,8 @@ export default function Expenses() {
     try {
       const res = await api.get('/expenses');
       setExpenses(res.data);
-    } catch {
-      alert('Failed to load expenses');
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -32,13 +33,21 @@ export default function Expenses() {
     router.push('/login');
   };
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (loading) {
+    return <p className="text-center mt-10">Loading expenses…</p>;
+  }
+
+  if (error) {
+    return <p className="text-center mt-10 text-red-600">{error}</p>;
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-6">
       <div className="flex justify-between mb-6">
         <h2 className="text-2xl font-bold">My Expenses</h2>
-        <button onClick={logout} className="btn btn-secondary">Logout</button>
+        <button onClick={logout} className="btn btn-secondary">
+          Logout
+        </button>
       </div>
 
       {expenses.length === 0 ? (

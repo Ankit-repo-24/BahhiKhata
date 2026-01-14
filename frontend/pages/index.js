@@ -6,17 +6,12 @@ export default function IndexPage() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-
-    if (token) {
-      router.replace('/expenses');
-    } else {
-      router.replace('/login');
-    }
+    router.replace(token ? '/expenses' : '/login');
   }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <p>Redirecting...</p>
+      <p>Redirecting…</p>
     </div>
   );
 }

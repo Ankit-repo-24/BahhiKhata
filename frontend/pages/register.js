@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import api from '../utils/api';
@@ -12,31 +12,28 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // ✅ Redirect if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) router.replace('/expenses');
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      await api.post('/auth/register', {
-        name,
-        email,
-        password,
-      });
+      await api.post('/auth/register', { name, email, password });
 
-      // ✅ RESET FORM FIELDS
       setName('');
       setEmail('');
       setPassword('');
       setShowPassword(false);
 
-      // optional: small UX delay so reset is visible
-      setTimeout(() => {
-        router.push('/login');
-      }, 300);
-
+      setTimeout(() => router.push('/login'), 300);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -53,7 +50,6 @@ export default function Register() {
           <input
             type="text"
             placeholder="Name"
-            className="input w-full"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -61,8 +57,6 @@ export default function Register() {
 
           <input
             type="email"
-            name="email"
-            autoComplete="email"
             placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -71,8 +65,6 @@ export default function Register() {
 
           <input
             type={showPassword ? 'text' : 'password'}
-            name="password"
-            autoComplete="current-password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -82,21 +74,18 @@ export default function Register() {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="text-sm text-blue-600 mt-1"
+            className="text-sm text-blue-600"
           >
             {showPassword ? 'Hide password' : 'Show password'}
           </button>
 
           <button className="btn btn-success w-full" disabled={loading}>
-            {loading ? 'Creating...' : 'Create Account'}
+            {loading ? 'Creating…' : 'Create Account'}
           </button>
         </form>
 
         <p className="text-sm text-center mt-4">
-          Already have an account?{' '}
-          <Link href="/login" className="text-primary-600">
-            Login
-          </Link>
+          Already have an account? <Link href="/login">Login</Link>
         </p>
       </div>
     </div>
