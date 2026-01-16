@@ -4,398 +4,225 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-blue)](https://www.postgresql.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-Bahhi Khata is a **minimal, backend-first expense tracker** built as a **proof-of-work project** to demonstrate **correct backend design, authentication, database ownership, and cloud deployment**. The project deliberately avoids over-engineering and focuses on **clarity, correctness, and extensibility**.
+Bahhi Khata is a **backend-first expense tracker** built as a **proof-of-work engineering project**. The focus is on **correct backend design, schema ownership, authentication, and real-world evolution**, with the frontend intentionally kept simple until the data layer is solid.
+
+This project is meant to resemble a **digital khata (ledger)** — reliable, structured, and honest — rather than a flashy dashboard.
+
+---
 
 ## 🎯 Project Philosophy
-- **Backend correctness first** — Robust APIs before fancy UI
-- **Simplicity over abstraction** — No premature optimization
-- **Ownership over third-party magic** — Understand every layer
-- **Schema evolves with features** — Not before them
+
+* **Backend correctness first** — APIs, auth, and schema before UI polish
+* **Schema evolves with features** — migrations over guesswork
+* **No premature abstraction** — clarity > cleverness
+* **Real-world constraints** — production DB, cloud hosting, auth flows
+
+---
 
 ## 🌟 Live Demo
-- **Backend API**: `https://bahhi-khata-backend.onrender.com` (Render free tier - may cold start)
-- **Frontend**: Coming soon
-- **API Documentation**: See [API Reference](#api-reference) below
+
+* **Backend API**: [https://bahhi-khata-backend.onrender.com](https://bahhi-khata-backend.onrender.com)
+  *(Render free tier — may cold start)*
+* **Frontend**: Local / in progress
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ and npm
-- PostgreSQL 16+ (local or Neon cloud)
-- Git
 
-### Local Development Setup
+* Node.js 18+
+* PostgreSQL 16+ (local or Neon)
+* Git
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/BahhiKhata/BahhiKhata.git
-   cd BahhiKhata/backend
-   ```
+### Backend Setup
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+```bash
+git clone https://github.com/BahhiKhata/BahhiKhata.git
+cd BahhiKhata/backend
+npm install
+cp .env.example .env
+```
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database credentials
-   ```
+Initialize database:
 
-4. **Initialize database**
-   ```bash
-   # Create database and tables
-   psql -U your_user -d postgres -f database/schema.sql
-   ```
+```bash
+psql <DATABASE_URL> -f database/schema.sql
+```
 
-5. **Start the server**
-   ```bash
-   npm run dev  # Development mode with nodemon
-   # OR
-   npm start    # Production mode
-   ```
+Start server:
+
+```bash
+npm run dev
+# or
+npm start
+```
 
 ### Frontend Setup
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
+---
+
 ## 🏗️ Architecture Overview
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Frontend      │────▶│   Backend API   │────▶│   PostgreSQL    │
-│   (Next.js)     │◀────│   (Express)     │◀────│   (Neon)        │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-        │                        │                        │
-        └────────────────────────┼────────────────────────┘
-                                 ▼
-                         ┌─────────────────┐
-                         │   Render.com    │
-                         │   (Hosting)     │
-                         └─────────────────┘
+Frontend (Next.js)
+        │
+        ▼
+Backend API (Express + JWT)
+        │
+        ▼
+PostgreSQL (Neon)
 ```
+
+* Stateless JWT authentication
+* Strict user-level data ownership
+* Hosted on Render + Neon
+
+---
 
 ## 📁 Project Structure
 
-### Backend (`/backend`)
+### Backend
+
 ```
 backend/
-├── server.js                 # Application entry point
-├── package.json             # Dependencies and scripts
-├── .env.example             # Environment template
-├── config/
-│   └── db.js               # PostgreSQL connection pool
+├── server.js
+├── config/db.js
 ├── routes/
-│   ├── auth.js             # Authentication endpoints
-│   ├── expenses.js         # Expense CRUD operations
-│   └── expenseTypes.js     # Expense type management
-├── middleware/
-│   └── auth.js             # JWT verification middleware
+│   ├── auth.js
+│   ├── expenses.js
+│   └── expenseTypes.js
+├── middleware/auth.js
 ├── database/
-│   └── schema.sql          # Database schema and seed data
+│   ├── schema.sql
+│   └── migrations/
 └── utils/
-    └── validators.js       # Input validation utilities
 ```
 
-### Frontend (`/frontend`)
+### Frontend
+
 ```
 frontend/
 ├── pages/
-│   ├── login.jsx           # Login page
-│   ├── register.jsx        # Registration page
-│   ├── expenses.jsx        # Expense listing
-│   └── add-expense.jsx     # Add expense form
-├── utils/
-│   └── api.js             # Axios API client configuration
-├── styles/
-│   └── globals.css        # Global Tailwind styles
-└── package.json
+│   ├── login.jsx
+│   ├── register.jsx
+│   ├── expenses.jsx
+│   ├── add-expense.jsx
+│   └── edit-expense/[id].jsx
+├── components/
+│   └── Layout.jsx
+├── utils/api.js
 ```
 
-## 🔧 Tech Stack Deep Dive
+---
 
-### Backend Layer
-- **Express.js** - Lightweight, unopinionated web framework
-- **JWT Authentication** - Stateless, scalable authentication
-- **bcrypt.js** - Secure password hashing
-- **pg** - PostgreSQL client with connection pooling
-- **cors** - Cross-origin resource sharing
-
-### Database Layer
-- **PostgreSQL 16+** - Robust, ACID-compliant relational database
-- **Neon** - Serverless PostgreSQL with branching
-- **Foreign Keys** - Referential integrity enforcement
-- **Indexes** - Optimized query performance
-- **JSON Support** - Flexible data when needed
-
-### Frontend Layer
-- **Next.js 13** - React framework with file-based routing
-- **Tailwind CSS** - Utility-first CSS framework
-- **Axios** - Promise-based HTTP client
-- **React Hooks** - Modern state and effect management
-
-### Deployment & DevOps
-- **Render** - Platform as a Service for backend hosting
-- **GitHub Actions** - CI/CD pipeline (planned)
-- **Environment Variables** - Secure configuration management
-- **SSL/TLS** - Encrypted data transmission
-
-## 📊 Database Schema
+## 📊 Database Schema (Phase 3 — Final)
 
 ```sql
--- Users table
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Expense types (reference table)
 CREATE TABLE expense_types (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL,
-    description TEXT
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Expenses table
 CREATE TABLE expenses (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    expense_type_id INTEGER REFERENCES expense_types(id),
-    amount DECIMAL(10, 2) NOT NULL CHECK (amount > 0),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    expense_type_id INTEGER NOT NULL REFERENCES expense_types(id),
+    amount NUMERIC(10,2) NOT NULL CHECK (amount > 0),
     description TEXT,
     expense_date DATE NOT NULL DEFAULT CURRENT_DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Indexes for performance
 CREATE INDEX idx_expenses_user_id ON expenses(user_id);
 CREATE INDEX idx_expenses_date ON expenses(expense_date);
+CREATE INDEX idx_expenses_type ON expenses(expense_type_id);
 ```
 
-## 🔌 API Reference
+---
 
-### Authentication Endpoints
+## 🔌 API Overview
 
-#### `POST /api/auth/register`
-Register a new user.
+### Auth
 
-**Request Body:**
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "securePassword123"
-}
+* `POST /api/auth/register`
+* `POST /api/auth/login`
+
+### Expenses (Phase 3)
+
+* `GET /api/expenses` (supports filters)
+* `POST /api/expenses`
+* `PUT /api/expenses/:id`
+* `DELETE /api/expenses/:id`
+
+Filtering supported via query params:
+
+```
+/api/expenses?from=YYYY-MM-DD&to=YYYY-MM-DD&min=100&max=500
 ```
 
-**Response:**
-```json
-{
-  "message": "User registered successfully",
-  "userId": 1
-}
-```
+---
 
-#### `POST /api/auth/login`
-Authenticate user and get JWT token.
+## ✅ Phase 3 — Completed Features
 
-**Request Body:**
-```json
-{
-  "email": "john@example.com",
-  "password": "securePassword123"
-}
-```
+* JWT-based authentication
+* Expense CRUD (add / edit / delete)
+* User-scoped data access
+* Date & amount filtering
+* Production DB on Neon
+* Schema migration experience
+* Minimal but functional frontend
 
-**Response:**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com"
-  }
-}
-```
+Phase 3 intentionally focuses on **correctness over polish**.
 
-### Expense Endpoints
+---
 
-#### `GET /api/expenses`
-Get all expenses for authenticated user.
+## 🛣️ Roadmap
 
-**Headers:**
-```
-Authorization: Bearer <your_jwt_token>
-```
+### Phase 4 — Analytics & Statistics
 
-**Response:**
-```json
-[
-  {
-    "id": 1,
-    "amount": 50.75,
-    "description": "Groceries",
-    "expense_date": "2024-01-15",
-    "type_name": "Food",
-    "created_at": "2024-01-15T10:30:00Z"
-  }
-]
-```
+* Monthly spending summary
+* Category-wise totals
+* Daily averages
+* Dedicated `/stats` pages
 
-#### `POST /api/expenses`
-Create a new expense.
+### Phase 5 — UX & Efficiency
 
-**Headers:**
-```
-Authorization: Bearer <your_jwt_token>
-```
+* Better edit flows (inline / modal)
+* Debounced filters
+* Pagination
+* Performance improvements
 
-**Request Body:**
-```json
-{
-  "amount": 29.99,
-  "description": "Monthly Netflix subscription",
-  "expense_type_id": 3,
-  "expense_date": "2024-01-15"
-}
-```
+### Phase 6 — Bahhi Khata UI Identity
 
-### Expense Types
+* Ledger-style layout
+* Date-grouped expenses
+* Calm, paper-like design language
 
-#### `GET /api/expense-types`
-Get all available expense types.
-
-**Headers:**
-```
-Authorization: Bearer <your_jwt_token>
-```
-
-## 🚢 Deployment Guide
-
-### 1. Database Deployment (Neon)
-1. Create account at [neon.tech](https://neon.tech)
-2. Create new project and database
-3. Copy connection string from Dashboard
-4. Run schema: `psql [connection_string] -f database/schema.sql`
-
-### 2. Backend Deployment (Render)
-1. Create account at [render.com](https://render.com)
-2. Create new Web Service
-3. Connect GitHub repository
-4. Configure settings:
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-   - **Environment Variables**: Add `DATABASE_URL` and `JWT_SECRET`
-
-### 3. Frontend Deployment (Vercel)
-1. Create account at [vercel.com](https://vercel.com)
-2. Import GitHub repository
-3. Set environment variable: `NEXT_PUBLIC_API_URL`
-4. Deploy
-
-## 🧪 Testing
-
-```bash
-# Run backend tests
-cd backend
-npm test
-
-# Run specific test suites
-npm test -- --testPathPattern=auth
-npm test -- --testPathPattern=expenses
-
-# Test with coverage
-npm run test:coverage
-```
-
-## 🔒 Security Features
-
-- **JWT-based authentication** with configurable expiration
-- **Password hashing** using bcrypt (salt rounds: 10)
-- **SQL injection prevention** via parameterized queries
-- **CORS configuration** for cross-origin security
-- **Environment-based configuration** (no secrets in code)
-- **Input validation** on all endpoints
-- **HTTPS enforcement** in production
-
-## 📈 Performance Optimizations
-
-- **Database connection pooling** (max 20 connections)
-- **Query optimization** with proper indexes
-- **Response compression** for large datasets
-- **Caching headers** for static assets
-- **Lazy loading** of non-critical modules
-
-
-## 🔄 Development Workflow
-
-1. **Feature Development**
-   ```bash
-   git checkout -b feature/your-feature
-   # Make changes
-   npm run lint
-   npm test
-   git commit -m "feat: add your feature"
-   ```
-
-2. **Code Review**
-   - Create pull request
-   - Ensure all tests pass
-   - Update documentation
-   - Request review
-
-3. **Deployment**
-   - Merge to main branch
-   - CI/CD pipeline triggers
-   - Automated tests run
-   - Deploy to staging
-   - Manual verification
-   - Promote to production
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+---
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [Express.js](https://expressjs.com/) team for the amazing framework
-- [PostgreSQL](https://www.postgresql.org/) community
-- [Render](https://render.com/) for free tier hosting
-- [Neon](https://neon.tech/) for serverless PostgreSQL
+MIT License
 
 ---
 
-## 📞 Support
-
-For support, email [mrigankharsh@gmail.com] or open an issue in the GitHub repository.
-
-## 📊 Project Status
-
-| Phase | Status | Description |
-|-------|--------|-------------|
-| Phase 0 — Foundation | ✅ Completed | Basic backend with authentication |
-| Phase 1 — Database Evolution | ✅ Completed | Enhanced schema and relationships |
-| Phase 2 — Cloud Deployment | ✅ Completed | Production deployment on Render |
-| Phase 3 — Frontend Polish | 🟡 In Progress | UI improvements and UX enhancements |
-| Phase 4 — Advanced Features | 🔄 Planned | Analytics, reports, and exports |
-| Phase 5 — Mobile App | 🔄 Planned | React Native application |
-
----
-
-**⭐ If you find this project useful, please consider giving it a star on GitHub!**
+⭐ *This repository represents real backend learning: schema drift, migrations, auth, and production debugging — not just UI
