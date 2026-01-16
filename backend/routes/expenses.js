@@ -4,23 +4,42 @@ const auth = require('../middleware/auth');
 const db = require('../config/db');
 
 /**
- * ASSUMPTION (Phase 1 only):
- * expense_type_id = 1 → "General"
+ * Phase 3:
+ * - Add expense with validation
+ * - Use schema-correct fields
  */
 
 // ADD EXPENSE
 router.post('/', auth, async (req, res) => {
   try {
-    const { title, amount, date, expense_type_id } = req.body;
+    const { amount, description, expense_date, expense_type_id } = req.body;
 
-    // Default to "General" type if not provided
-    const typeId = expense_type_id || 1;
+    // Basic validation
+    if (!amount || isNaN(amount) || Number(amount) <= 0) {
+      return res.status(400).json({ message: 'Invalid amount' });
+    }
+
+    const typeId = expense_type_id || 1; // default "General"
 
     const result = await db.query(
-      `INSERT INTO expenses (user_id, title, amount, expense_date, expense_type_id)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      [req.user.userId, title, amount, date, typeId]
+      `
+      INSERT INTO expenses (
+        user_id,
+        amount,
+        description,
+        expense_date,
+        expense_type_id
+      )
+      VALUES ($1, $2, $3, COALESCE($4, CURRENT_DATE), $5)
+      RETURNING id, amount, description, expense_date, expense_type_id
+      `,
+      [
+        req.user.userId,
+        amount,
+        description || null,
+        expense_date || null,
+        typeId
+      ]
     );
 
     res.status(201).json(result.rows[0]);
@@ -36,16 +55,18 @@ router.post('/', auth, async (req, res) => {
 router.get('/', auth, async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT 
-          e.id,
-          e.title,
-          e.amount,
-          e.expense_date,
-          t.name AS expense_type
-       FROM expenses e
-       JOIN expense_types t ON e.expense_type_id = t.id
-       WHERE e.user_id = $1
-       ORDER BY e.expense_date DESC`,
+      `
+      SELECT
+        e.id,
+        e.amount,
+        e.description,
+        e.expense_date,
+        t.name AS expense_type
+      FROM expenses e
+      JOIN expense_types t ON e.expense_type_id = t.id
+      WHERE e.user_id = $1
+      ORDER BY e.expense_date DESC
+      `,
       [req.user.userId]
     );
 
@@ -62,9 +83,11 @@ router.get('/', auth, async (req, res) => {
 router.delete('/:id', auth, async (req, res) => {
   try {
     const result = await db.query(
-      `DELETE FROM expenses
-       WHERE id = $1 AND user_id = $2
-       RETURNING id`,
+      `
+      DELETE FROM expenses
+      WHERE id = $1 AND user_id = $2
+      RETURNING id
+      `,
       [req.params.id, req.user.userId]
     );
 
