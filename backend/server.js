@@ -7,6 +7,7 @@ const express = require('express');
 const cors = require('cors');
 
 const db = require('./config/db'); 
+const statsRoutes = require('./routes/stats');
 
 const app = express();
 const expenseTypesRoutes = require('./routes/expenseTypes');
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/expenses', require('./routes/expenses'));
 app.use('/api/expense-types', expenseTypesRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Health check
 app.get('/', (req, res) => {
