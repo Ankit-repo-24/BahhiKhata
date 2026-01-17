@@ -4,7 +4,6 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
-/* ✅ ATTACH TOKEN TO EVERY REQUEST */
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
@@ -27,19 +26,8 @@ api.interceptors.response.use(
       error.response?.data?.error ||
       'Something went wrong';
 
-    /* ✅ GLOBAL AUTH FAILURE HANDLING */
-    if (status === 401 && typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-
-      // prevent redirect loop
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
-    }
-
     return Promise.reject({ status, message });
   }
 );
-
 
 export default api;

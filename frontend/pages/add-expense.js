@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import api from '../utils/api';
+import ProtectedRoute from '../components/ProtectedRoute';
+import Layout from '../components/Layout';
 
 export default function AddExpense() {
   const router = useRouter();
@@ -32,6 +34,7 @@ export default function AddExpense() {
   };
 
   return (
+    <ProtectedRoute>
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <form
         onSubmit={handleSubmit}
@@ -84,5 +87,6 @@ export default function AddExpense() {
         </button>
       </form>
     </div>
+    </ProtectedRoute>
   );
 }

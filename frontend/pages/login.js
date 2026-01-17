@@ -8,7 +8,6 @@ import api from '../utils/api';
 
 export default function Login() {
   const router = useRouter();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,15 +16,11 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
+    setError('');
 
     try {
-      const res = await api.post('/auth/login', {
-        email,
-        password,
-      });
-
+      const res = await api.post('/auth/login', { email, password });
       localStorage.setItem('token', res.data.token);
       router.push('/expenses');
     } catch (err) {
@@ -39,46 +34,37 @@ export default function Login() {
     <Layout>
       <div className="min-h-[calc(100vh-160px)] flex items-center justify-center">
         <div className="card w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-center mb-2">
+          <h2 className="text-2xl font-semibold text-center mb-6">
             Welcome back
           </h2>
-          <p className="text-sm text-gray-600 text-center mb-6">
-            Login to continue tracking expenses
-          </p>
 
-          {error && (
-            <div className="alert alert-error mb-4">
-              {error}
-            </div>
-          )}
+          {error && <div className="alert alert-error">{error}</div>}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               label="Email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              autoComplete="email"
               required
             />
 
             <Input
               label="Password"
               type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              autoComplete="current-password"
               required
             />
 
             <button
               type="button"
-              className="text-xs text-blue-600 self-start"
+              className="text-xs text-blue-600"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? 'Hide password' : 'Show password'}
+              {showPassword ? 'Hide' : 'Show'} password
             </button>
 
             <Button type="submit" disabled={loading}>
@@ -87,7 +73,7 @@ export default function Login() {
           </form>
 
           <p className="text-sm text-center mt-6">
-            Don’t have an account?{' '}
+            No account?{' '}
             <Link href="/register" className="text-blue-600">
               Register
             </Link>

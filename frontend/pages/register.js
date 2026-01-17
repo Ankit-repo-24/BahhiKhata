@@ -5,6 +5,7 @@ import Layout from '../components/Layout';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import api from '../utils/api';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 export default function Register() {
   const router = useRouter();
